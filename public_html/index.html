@@ -9,9 +9,225 @@ and open the template in the editor.
         <title>TODO supply a title</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <script src="jquery-1.4.2.min.js"></script>
+<script src="jquery-ui-1.8.4.custom.min.js"></script>
+<link rel="stylesheet" type="text/css" href="background.css">
+<link rel="icon" type="image/png" href="http://shell1.vclk.net/~alebus/favicon1.png">
+
+    
     </head>
     <body>
-        <div>TODO write content</div>
+        
+        
+        <img height="125" src="pixel_mario.png">
+<img src="pixel_parser.png">
+<br><br>
+
+
+<input action=# method="get" type="text" size="150" id="a_input">
+<input type="submit" value="Parse the pixel" id="a_submit">
+<div id="a_popup"></div>
+<br>
+
+<p>sample pixel for testing:</p>
+<textarea class="sample_pixel" rows="4" cols="100">OID=123ABC&CID=151515&TYPE=353241&containerTagId=777&DCNT5=27.25&DCNT4=9.75&DCNT3=14.75&DCNT2=8.50&DCNT1=9.50&QTY5=1&DISCOUNT=5.00&QTY4=1&QTY3=1&AMT5=109.00&QTY2=1&AMT4=39.00&QTY1=2&AMT3=59.00&ITEM5=444234&AMT2=34.00&ITEM4=442843_BLA_L_1&AMT1=19.00&CURRENCY=USD&ITEM3=444685&ITEM2=404511&ITEM1=384275&COUPON=MUSHROOM_PIXXA</textarea>
+
+
+<br><br><hr>
+<i>This will only show the params it cares about, not everything in the pixel.<br></i>
+<i>Right now you need to have un-encoded ampersands.<br></i>
+<br>
+
+
+<script>
+
+//By Airn LeBus, originally based on Lost Tracking code from Eric Adlam
+//Version: 1.2: major updates to HTML and output format, plus a move to shell1 from allied
+//Be wary of diff versions on allied vs. shell1
+
+//TODO see notes in Onenote
+
+//TODO remove comments before "push" to production
+
+//TODO - parse &amp; too
+//TODO add background image
+//TODO update to match kibana version as needed BUT remember that a lot of this works differently
+
+//0[ ] 4-29-2015: add regex to check qty for decimal or negative, plus add warnings/errors section
+
+	
+$("#a_submit").click(
+
+	function(e){		
+	
+			
+		
+			// get resources
+			var querystring = $("#a_input").val();
+			
+							
+			console.log(querystring);
+						
+			var subTotal = 0;
+			
+						
+			
+			var warnings = "<div class='warnings'>";
+			
+			
+			//parse pixel
+			var pixelArray = querystring.split("&");
+			var pixelDict = new Array();
+			for(i in pixelArray){
+				var t = pixelArray[i].split("=");
+				pixelDict[t[0].toUpperCase()] = t[1];
+			}
+			
+			var itemList = "";
+			if(pixelDict["AMOUNT"] != undefined){
+					itemList = itemList + '<span class="params">AMOUNT</span>: ' + pixelDict["AMOUNT"]+'<br/>';
+					subTotal = subTotal + parseFloat(pixelDict["AMOUNT"]);
+				}
+				
+				
+				
+			if(pixelDict["CONTAINERTAGID"] != undefined){
+					itemList = itemList + '<span class="params">CONTAINERTAGID</span>: ' + pixelDict["CONTAINERTAGID"]+'<br/>';
+					
+				}
+				
+			
+				if(pixelDict["COUPON"] != undefined){
+					itemList = itemList + '<span class="params">COUPON</span>: ' + pixelDict["COUPON"]+'<br/>';
+					
+				}
+				
+					if(pixelDict["CURRENCY"] != undefined){
+					itemList = itemList + '<span class="params">CURRENCY</span>: ' + pixelDict["CURRENCY"]+'<br/>';
+					
+				}
+					
+				
+			if(pixelDict["DISCOUNT"] != undefined){
+					itemList = itemList + '<span class="params">DISCOUNT</span>: ' + pixelDict["DISCOUNT"]+'<br/>';
+					subTotal = subTotal - parseFloat(pixelDict["DISCOUNT"]);
+				}
+			
+			itemList = itemList + '<hr/>';
+			
+			
+					
+			
+	for(var n = 1; n < 100 + 1; n++){
+				if(pixelDict["ITEM"+n] != undefined){
+					itemList = itemList + 
+									'<br/>'+
+									 '<span class="params_head">SKU GROUP NUMBER: '+n +'</span><br/>'+
+									 '<span class="params">ITEM'+'</span>: ' + pixelDict["ITEM"+n]+'<br/>'+
+									 '<span class="params">AMT'+'</span>: ' + pixelDict["AMT"+n] +'<br/>'+
+									 '<span class="params">QTY'+'</span>: ' + pixelDict["QTY"+n] +'<br/>';
+					
+
+			
+									//[ ] add code to check for warnings here or use a function etc
+									//start by checking the QTY for decimal or negative or maybe anything non-numeric!
+									
+									//example - but is this the best way to do it?
+									//var res = str.match(/ain/g);   best way to do it?
+									
+									//[ ] do this as a function if they are the same for multiple params? 
+									//work on writing better, reusable code 
+									
+									//single character example
+									//qtyBadChars = pixelDict["QTY"+n].match(/[\.\-]/g);
+									
+									//match anything that is not a number
+									qtyBadChars = pixelDict["QTY"+n].match(/[^0-9]/g);
+									if(qtyBadChars != null){
+									
+									
+									warnings += '<br/>Warning: Illegal characters found in QTY: ' + qtyBadChars;
+									
+									}
+			  
+			
+
+
+					
+					subTotal = subTotal + parseFloat(pixelDict["AMT"+n]) * parseFloat(pixelDict["QTY"+n]);
+					
+					if(pixelDict["DCNT"+n] != undefined){
+						itemList = itemList + '<span class="params">DCNT</span>: ' + pixelDict["DCNT"+n]+'<br/>';
+						subTotal = subTotal - parseFloat(pixelDict["DCNT"+n])
+					}
+				}else{
+					break;
+				}
+			}
+			
+			
+			  
+			
+				
+			$("#a_popup").append('<div class="messagepop pop">'
+			
+				  +'<a class="close" href="/"><img id="close_button" alt="x"></a>'
+				  +'<div class="info">' 
+				  +'<span class="header">Standalone Pixel Parser / Version 1.3</span><hr/>'
+				  +'<br/><br/><i>Note: Only standard tag parameters are shown - verify the tag manually too.</i>'
+				  + warnings + '<br/><br/></div>'
+				  + 'Order subtotal: ' + subTotal + '<br/><br/>'
+				  +'<span class="params">CID</span>: ' + pixelDict["CID"] + '<br/>' 
+				  +'<span class="params">TYPE</span>: ' + pixelDict["TYPE"] + '<br/>'
+				  +'<span class="params">OID</span>: '+ pixelDict["OID"] + '<br/>'
+				  + itemList 
+				  +'</div></div>');
+														  
+														  
+				$(".pop").css("top", e.pageY).css("left", e.pageX - $(".pop").width());
+            	$(".pop").slideFadeToggle();
+            	$(".pop").draggable({ cancel: "div.info" });	
+				           	
+		       	return false;
+				
+
+		}
+
+);
+
+
+
+$(function() {
+        $(".close").live('click', function() {
+            $(".pop").slideFadeToggle();
+            $(".messagepop").remove();
+            return false;
+        });
+    });
+
+    $.fn.slideFadeToggle = function(easing, callback) {
+        return this.animate({ opacity: 'toggle', height: 'toggle' }, "fast", easing, callback);
+};
+	
+</script>
+
+
+
+</body>
+
+        
+        
+        
+        
+        
+        
+        
     </body>
 </html>
    
+
+
+
+
+
