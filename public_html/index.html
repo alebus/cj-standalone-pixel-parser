@@ -26,17 +26,22 @@ and open the template in the editor.
 <img src="pixel_parser.png">
 <br><br>
 
+<p>-- Error-checking branch off master -- </p>
+<br><br>
+
 
 <input action=# method="get" type="text" size="150" id="a_input">
 <input type="submit" value="Parse the pixel" id="a_submit">
 <div id="output_area"></div>
 <br>
 
-<p>-- Error-checking branch off master -- </p>
-<br><br>
+
 
 <p>sample pixel for testing:</p>
 <textarea class="sample_pixel" rows="4" cols="100">OID=123ABC&CID=151515&TYPE=353241&containerTagId=777&DCNT5=27.25&DCNT4=9.75&DCNT3=14.75&DCNT2=8.50&DCNT1=9.50&QTY5=1&DISCOUNT=5.00&QTY4=1&QTY3=1&AMT5=109.00&QTY2=1&AMT4=39.00&QTY1=2&AMT3=59.00&ITEM5=444234&AMT2=34.00&ITEM4=442843_BLA_L_1&AMT1=19.00&CURRENCY=USD&ITEM3=444685&ITEM2=404511&ITEM1=384275&COUPON=MUSHROOM_PIXXA</textarea>
+
+<p>broken pixel for testing:</p>
+<textarea class="broken_pixel" rows="4" cols="100">OID=123ABC&CID=151515&TYPE=353241&containerTagId=777&DCNTx=27.25&DCNT4=9.75&DCNT3=$14.75&DCNT2=8.50&DCNT1=9.50&QTY5=1&DISCOUNT=5.00&QTY4=1.0&QTY3=-1&AMT5=109.00&QTY2=1&AMT4=39.00&QTY1=2&AMT3=59.00&ITEM5=444234&AMT2=34.00&ITEM4=442843_BLA_L_1&AMT1=19.00&CURRENCY=USD&ITEM3=444685&ITEM2=404511&ITEM1=384275&COUPON=MUSHROOM_PIXXA</textarea>
 
 
 <br><br><hr>
@@ -62,8 +67,7 @@ and open the template in the editor.
 //TODO remove comments before push to production
 //TODO remove popup window and have it slide in instead? no reason for popup on this 
 //TODO - parse &amp; too
-//TODO add background image
-//TODO update to match kibana version as needed BUT remember that a lot of this works differently
+//TODO update to match kibana version as needed but remember that a lot of this works differently 
 
 
 //TODO do these next: 
@@ -71,24 +75,18 @@ and open the template in the editor.
 //*per jen: chars other than dashes/underscores, a-z and 0-9 in SKUs
 
 
-//0[ ] 4-29-2015: add regex to check qty for decimal or negative, plus add warnings/errors section
-
-
-console.log("Last modified:" + document.lastModified);
-
 $("#output_area").toggle();
 
 $("#a_submit").click(
 
 	function(e){		
-	
 			
         //clear the div before adding output
         $("#output_area").html("");
 			
         // get resources
 	var querystring = $("#a_input").val();
-	console.log(querystring);
+	//console.log(querystring);
 						
 	var subTotal = 0;
 	
@@ -96,73 +94,69 @@ $("#a_submit").click(
 		
 			
         //parse pixel
+        
+        //TODO check to see if the pixel uses &amp; and just replace them with ampersands,
+        //then add a note that it was done
+        
         var pixelArray = querystring.split("&");
         var pixelDict = new Array();
         for(i in pixelArray){
-                
+            
+            //look for AMTx etc
+            usingX = pixelArray[i].match(/(dcntx)|(amtx)|(itemx)|(qtyx)/gi);
+            if(usingX != null){
+                    warnings += '<br/>Warning - found bad parameter: ' + usingX;
+                }
+            
             var t = pixelArray[i].split("=");
             pixelDict[t[0].toUpperCase()] = t[1];
-		}
+                
+            
+        }
 			
             var itemList = "";
+            
             if(pixelDict["AMOUNT"] != undefined){
 		itemList = itemList + '<span class="params">AMOUNT</span>: ' + pixelDict["AMOUNT"]+'<br/>';
 		subTotal = subTotal + parseFloat(pixelDict["AMOUNT"]);
             }
 				
 				
-				
-			if(pixelDict["CONTAINERTAGID"] != undefined){
-					itemList = itemList + '<span class="params">CONTAINERTAGID</span>: ' + pixelDict["CONTAINERTAGID"]+'<br/>';
-					
-				}
+            if(pixelDict["CONTAINERTAGID"] != undefined){
+		itemList = itemList + '<span class="params">CONTAINERTAGID</span>: ' + pixelDict["CONTAINERTAGID"]+'<br/>';
+            }
 				
 			
-				if(pixelDict["COUPON"] != undefined){
-					itemList = itemList + '<span class="params">COUPON</span>: ' + pixelDict["COUPON"]+'<br/>';
-					
-				}
+            if(pixelDict["COUPON"] != undefined){
+		itemList = itemList + '<span class="params">COUPON</span>: ' + pixelDict["COUPON"]+'<br/>';
+            }
 				
-					if(pixelDict["CURRENCY"] != undefined){
-					itemList = itemList + '<span class="params">CURRENCY</span>: ' + pixelDict["CURRENCY"]+'<br/>';
-					
-				}
+            if(pixelDict["CURRENCY"] != undefined){
+            itemList = itemList + '<span class="params">CURRENCY</span>: ' + pixelDict["CURRENCY"]+'<br/>';
+            }
 					
 				
-			if(pixelDict["DISCOUNT"] != undefined){
-					itemList = itemList + '<span class="params">DISCOUNT</span>: ' + pixelDict["DISCOUNT"]+'<br/>';
-					subTotal = subTotal - parseFloat(pixelDict["DISCOUNT"]);
-				}
+            if(pixelDict["DISCOUNT"] != undefined){
+            itemList = itemList + '<span class="params">DISCOUNT</span>: ' + pixelDict["DISCOUNT"]+'<br/>';
+            subTotal = subTotal - parseFloat(pixelDict["DISCOUNT"]);
+            }
 			
-			itemList = itemList + '<hr/>';
+            itemList = itemList + '<hr/>';
 			
+	
 			
-					
-			
-                for(var n = 1; n < 100 + 1; n++){
+            for(var n = 1; n < 100 + 1; n++){
 				
-                    if(pixelDict["ITEM"+n] != undefined){
-                                    itemList = itemList + 
-                                                
-                                '<br/>'+
-                                 '<span class="params_head">SKU GROUP NUMBER: '+n +'</span><br/>'+
-                                 '<span class="params">ITEM'+'</span>: ' + pixelDict["ITEM"+n]+'<br/>'+
-                                 '<span class="params">AMT'+'</span>: ' + pixelDict["AMT"+n] +'<br/>'+
-                                 '<span class="params">QTY'+'</span>: ' + pixelDict["QTY"+n] +'<br/>';
+            if(pixelDict["ITEM"+n] != undefined){
+                itemList = itemList + '<br/>'+
+                 '<span class="params_head">SKU GROUP NUMBER: '+n +'</span><br/>'+
+                 '<span class="params">ITEM'+'</span>: ' + pixelDict["ITEM"+n]+'<br/>'+
+                 '<span class="params">AMT'+'</span>: ' + pixelDict["AMT"+n] +'<br/>'+
+                 '<span class="params">QTY'+'</span>: ' + pixelDict["QTY"+n] +'<br/>';
 
 
-                //[ ] add code to check for warnings here or use a function etc
-                //start by checking the QTY for decimal or negative or maybe anything non-numeric!
-
-                //example - but is this the best way to do it?
-                //var res = str.match(/ain/g);   best way to do it?
-
-                //[ ] do this as a function if they are the same for multiple params? 
-                //work on writing better, reusable code 
-
-                //single character example
-                //qtyBadChars = pixelDict["QTY"+n].match(/[\.\-]/g);
-
+                //TODO error checking - do this as a function if they are the same for multiple params? 
+                
                 //match anything that is not a number
                 qtyBadChars = pixelDict["QTY"+n].match(/[^0-9]/g);
 
@@ -171,38 +165,49 @@ $("#a_submit").click(
                 }
 	
 					
-					subTotal = subTotal + parseFloat(pixelDict["AMT"+n]) * parseFloat(pixelDict["QTY"+n]);
+		subTotal = subTotal + parseFloat(pixelDict["AMT"+n]) * parseFloat(pixelDict["QTY"+n]);
 					
-					if(pixelDict["DCNT"+n] != undefined){
-						itemList = itemList + '<span class="params">DCNT</span>: ' + pixelDict["DCNT"+n]+'<br/>';
-						subTotal = subTotal - parseFloat(pixelDict["DCNT"+n])
-					}
-				}else{
-					break;
-				}
-			}
+		if(pixelDict["DCNT"+n] != undefined){
+                    itemList = itemList + '<span class="params">DCNT</span>: ' + pixelDict["DCNT"+n]+'<br/>';
+                    subTotal = subTotal - parseFloat(pixelDict["DCNT"+n])
+		}
+            }   else { 	break; }
+			
+            }
 			
 			
 				
-			$("#output_area").append('<span class="header">Standalone Pixel Parser</span><hr/>'
-                            +'<br/><br/><i>Note: Only standard tag parameters are shown - verify the tag manually too.</i>'
-                            + warnings + '<br/><br/></div>'
-                            + 'Order subtotal: ' + subTotal + '<br/><br/>'
-                            +'<span class="params">CID</span>: ' + pixelDict["CID"] + '<br/>' 
-                            +'<span class="params">TYPE</span>: ' + pixelDict["TYPE"] + '<br/>'
-                            +'<span class="params">OID</span>: '+ pixelDict["OID"] + '<br/>'
-                            + itemList 
-                            +'</div></div>');
-			
-                        $( "#output_area" ).toggle( "slide","500" );
-														  
-                        //used for popup
-                        //$(".pop").css("top", e.pageY).css("left", e.pageX - $(".pop").width());
-                        //$(".pop").slideFadeToggle();
-                        //$(".pop").draggable({ cancel: "div.info" });	
+                $("#output_area").append('<span class="header">Standalone Pixel Parser</span><hr/>'
+                    +'<br/><br/><i>Note: Only standard tag parameters are shown - verify the tag manually too.</i>'
+                    + warnings + '<br/><br/></div>'
+                    + 'Order subtotal: ' + subTotal + '<br/><br/>'
+                    +'<span class="params">CID</span>: ' + pixelDict["CID"] + '<br/>' 
+                    +'<span class="params">TYPE</span>: ' + pixelDict["TYPE"] + '<br/>'
+                    +'<span class="params">OID</span>: '+ pixelDict["OID"] + '<br/>'
+                    + itemList 
+                    +'</div></div>');
 
-                        //TODO - remove this?
-                        return false;
+
+                //only toggle the area if it's hidden already, otherwise it gets hidden 
+                
+                if( $( "#output_area" ).is( ":hidden" ) ) {
+                    
+                    $( "#output_area" ).toggle( "slide","500" );    
+                    
+                }
+                
+
+                
+														  
+                //old - used for popup
+                //$(".pop").css("top", e.pageY).css("left", e.pageX - $(".pop").width());
+                //$(".pop").slideFadeToggle();
+                //$(".pop").draggable({ cancel: "div.info" });	
+
+
+                //TODO - is it best practice to have this? was in old version
+                //return false;
+                
 		}
 );
 
