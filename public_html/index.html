@@ -9,8 +9,6 @@ and open the template in the editor.
         <title>Standalone pixel parser</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-        
                 
         <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
         <script src="//code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
@@ -31,7 +29,7 @@ and open the template in the editor.
 
 <input action=# method="get" type="text" size="150" id="a_input">
 <input type="submit" value="Parse the pixel" id="a_submit">
-<div id="a_popup"></div>
+<div id="output_area"></div>
 <br>
 
 <p>-- Error-checking branch off master -- </p>
@@ -52,6 +50,8 @@ and open the template in the editor.
 //By Airn LeBus
 //Version: 1.2: major updates to HTML and output format, plus a move to shell1 from allied
 //Version: 1.3: move into netbeans, move to github, etc etc
+//05-05-2015 I removed popup which included changing the CSS
+//TODO how best keep track of version numbers? or don't?
 
 //TODO see notes in Onenote
 //TODO is there a way to put comments in a separate private file etc? or just make a TODO file and don't push that to production
@@ -59,47 +59,56 @@ and open the template in the editor.
 //
 //TODO sometime closing the window redirects the browser
 
-//TODO remove comments before "push" to production
-
+//TODO remove comments before push to production
+//TODO remove popup window and have it slide in instead? no reason for popup on this 
 //TODO - parse &amp; too
 //TODO add background image
 //TODO update to match kibana version as needed BUT remember that a lot of this works differently
 
+
+//TODO do these next: 
+//*Per jen: amtx or other wrong things
+//*per jen: chars other than dashes/underscores, a-z and 0-9 in SKUs
+
+
 //0[ ] 4-29-2015: add regex to check qty for decimal or negative, plus add warnings/errors section
 
-	
+
+console.log("Last modified:" + document.lastModified);
+
+$("#output_area").toggle();
+
 $("#a_submit").click(
 
 	function(e){		
 	
 			
+        //clear the div before adding output
+        $("#output_area").html("");
+			
+        // get resources
+	var querystring = $("#a_input").val();
+	console.log(querystring);
+						
+	var subTotal = 0;
+	
+        var warnings = "<div class='warnings'>";
 		
-			// get resources
-			var querystring = $("#a_input").val();
 			
-							
-			console.log(querystring);
-						
-			var subTotal = 0;
+        //parse pixel
+        var pixelArray = querystring.split("&");
+        var pixelDict = new Array();
+        for(i in pixelArray){
+                
+            var t = pixelArray[i].split("=");
+            pixelDict[t[0].toUpperCase()] = t[1];
+		}
 			
-						
-			
-			var warnings = "<div class='warnings'>";
-			
-			
-			//parse pixel
-			var pixelArray = querystring.split("&");
-			var pixelDict = new Array();
-			for(i in pixelArray){
-				var t = pixelArray[i].split("=");
-				pixelDict[t[0].toUpperCase()] = t[1];
-			}
-			
-			var itemList = "";
-			if(pixelDict["AMOUNT"] != undefined){
-					itemList = itemList + '<span class="params">AMOUNT</span>: ' + pixelDict["AMOUNT"]+'<br/>';
-					subTotal = subTotal + parseFloat(pixelDict["AMOUNT"]);
-				}
+            var itemList = "";
+            if(pixelDict["AMOUNT"] != undefined){
+		itemList = itemList + '<span class="params">AMOUNT</span>: ' + pixelDict["AMOUNT"]+'<br/>';
+		subTotal = subTotal + parseFloat(pixelDict["AMOUNT"]);
+            }
 				
 				
 				
@@ -130,41 +139,37 @@ $("#a_submit").click(
 			
 					
 			
-	for(var n = 1; n < 100 + 1; n++){
-				if(pixelDict["ITEM"+n] != undefined){
-					itemList = itemList + 
-									'<br/>'+
-									 '<span class="params_head">SKU GROUP NUMBER: '+n +'</span><br/>'+
-									 '<span class="params">ITEM'+'</span>: ' + pixelDict["ITEM"+n]+'<br/>'+
-									 '<span class="params">AMT'+'</span>: ' + pixelDict["AMT"+n] +'<br/>'+
-									 '<span class="params">QTY'+'</span>: ' + pixelDict["QTY"+n] +'<br/>';
-					
-
-			
-									//[ ] add code to check for warnings here or use a function etc
-									//start by checking the QTY for decimal or negative or maybe anything non-numeric!
-									
-									//example - but is this the best way to do it?
-									//var res = str.match(/ain/g);   best way to do it?
-									
-									//[ ] do this as a function if they are the same for multiple params? 
-									//work on writing better, reusable code 
-									
-									//single character example
-									//qtyBadChars = pixelDict["QTY"+n].match(/[\.\-]/g);
-									
-									//match anything that is not a number
-									qtyBadChars = pixelDict["QTY"+n].match(/[^0-9]/g);
-									if(qtyBadChars != null){
-									
-									
-									warnings += '<br/>Warning: Illegal characters found in QTY: ' + qtyBadChars;
-									
-									}
-			  
-			
+                for(var n = 1; n < 100 + 1; n++){
+				
+                    if(pixelDict["ITEM"+n] != undefined){
+                                    itemList = itemList + 
+                                                
+                                '<br/>'+
+                                 '<span class="params_head">SKU GROUP NUMBER: '+n +'</span><br/>'+
+                                 '<span class="params">ITEM'+'</span>: ' + pixelDict["ITEM"+n]+'<br/>'+
+                                 '<span class="params">AMT'+'</span>: ' + pixelDict["AMT"+n] +'<br/>'+
+                                 '<span class="params">QTY'+'</span>: ' + pixelDict["QTY"+n] +'<br/>';
 
 
+                //[ ] add code to check for warnings here or use a function etc
+                //start by checking the QTY for decimal or negative or maybe anything non-numeric!
+
+                //example - but is this the best way to do it?
+                //var res = str.match(/ain/g);   best way to do it?
+
+                //[ ] do this as a function if they are the same for multiple params? 
+                //work on writing better, reusable code 
+
+                //single character example
+                //qtyBadChars = pixelDict["QTY"+n].match(/[\.\-]/g);
+
+                //match anything that is not a number
+                qtyBadChars = pixelDict["QTY"+n].match(/[^0-9]/g);
+
+                if(qtyBadChars != null){
+                    warnings += '<br/>Warning: Illegal characters found in QTY: ' + qtyBadChars;
+                }
+	
 					
 					subTotal = subTotal + parseFloat(pixelDict["AMT"+n]) * parseFloat(pixelDict["QTY"+n]);
 					
@@ -178,38 +183,34 @@ $("#a_submit").click(
 			}
 			
 			
-			  
-			
 				
-			$("#a_popup").append('<div class="messagepop pop">'
+			$("#output_area").append('<span class="header">Standalone Pixel Parser</span><hr/>'
+                            +'<br/><br/><i>Note: Only standard tag parameters are shown - verify the tag manually too.</i>'
+                            + warnings + '<br/><br/></div>'
+                            + 'Order subtotal: ' + subTotal + '<br/><br/>'
+                            +'<span class="params">CID</span>: ' + pixelDict["CID"] + '<br/>' 
+                            +'<span class="params">TYPE</span>: ' + pixelDict["TYPE"] + '<br/>'
+                            +'<span class="params">OID</span>: '+ pixelDict["OID"] + '<br/>'
+                            + itemList 
+                            +'</div></div>');
 			
-				  +'<a class="close" href="/"><img id="close_button" alt="x"></a>'
-				  +'<div class="info">' 
-				  +'<span class="header">Standalone Pixel Parser</span><hr/>'
-				  +'<br/><br/><i>Note: Only standard tag parameters are shown - verify the tag manually too.</i>'
-				  + warnings + '<br/><br/></div>'
-				  + 'Order subtotal: ' + subTotal + '<br/><br/>'
-				  +'<span class="params">CID</span>: ' + pixelDict["CID"] + '<br/>' 
-				  +'<span class="params">TYPE</span>: ' + pixelDict["TYPE"] + '<br/>'
-				  +'<span class="params">OID</span>: '+ pixelDict["OID"] + '<br/>'
-				  + itemList 
-				  +'</div></div>');
+                        $( "#output_area" ).toggle( "slide","500" );
 														  
-														  
-				$(".pop").css("top", e.pageY).css("left", e.pageX - $(".pop").width());
-            	$(".pop").slideFadeToggle();
-            	$(".pop").draggable({ cancel: "div.info" });	
-				           	
-		       	return false;
-				
+                        //used for popup
+                        //$(".pop").css("top", e.pageY).css("left", e.pageX - $(".pop").width());
+                        //$(".pop").slideFadeToggle();
+                        //$(".pop").draggable({ cancel: "div.info" });	
 
+                        //TODO - remove this?
+                        return false;
 		}
-
 );
 
 
-
-$(function() {
+//this is from when the code was delivered in a popup
+//will keep this in case want to do that again later
+/*
+    $(function() {
         $(".close").live('click', function() {
             $(".pop").slideFadeToggle();
             $(".messagepop").remove();
@@ -220,7 +221,7 @@ $(function() {
     $.fn.slideFadeToggle = function(easing, callback) {
         return this.animate({ opacity: 'toggle', height: 'toggle' }, "fast", easing, callback);
 };
-	
+*/	
 </script>
 
 
