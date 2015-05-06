@@ -29,25 +29,35 @@ and open the template in the editor.
 <p>-- Error-checking branch off master -- </p>
 <br><br>
 
-
 <input action=# method="get" type="text" size="150" id="a_input">
 <input type="submit" value="Parse the pixel" id="a_submit">
 <div id="output_area"></div>
 <br>
 
 
-
 <p>sample pixel for testing:</p>
 <textarea class="sample_pixel" rows="4" cols="100">OID=123ABC&CID=151515&TYPE=353241&containerTagId=777&DCNT5=27.25&DCNT4=9.75&DCNT3=14.75&DCNT2=8.50&DCNT1=9.50&QTY5=1&DISCOUNT=5.00&QTY4=1&QTY3=1&AMT5=109.00&QTY2=1&AMT4=39.00&QTY1=2&AMT3=59.00&ITEM5=444234&AMT2=34.00&ITEM4=442843_BLA_L_1&AMT1=19.00&CURRENCY=USD&ITEM3=444685&ITEM2=404511&ITEM1=384275&COUPON=MUSHROOM_PIXXA</textarea>
 
 <p>broken pixel for testing:</p>
-<textarea class="broken_pixel" rows="4" cols="100">OID=123ABC&CID=151515&TYPE=353241&containerTagId=777&DCNTx=27.25&DCNT4=9.75&DCNT3=$14.75&DCNT2=8.50&DCNT1=9.50&QTY5=1&DISCOUNT=5.00&QTY4=1.0&QTY3=-1&AMT5=109.00&QTY2=1&AMT4=39.00&QTY1=2&AMT3=59.00&ITEM5=444234&AMT2=34.00&ITEM4=442843_BLA_L_1&AMT1=19.00&CURRENCY=USD&ITEM3=444685&ITEM2=404511&ITEM1=384275&COUPON=MUSHROOM_PIXXA</textarea>
+<textarea class="broken_pixel" rows="4" cols="100">OID=123ABC&CID=151515&TYPE=353241&containerTagId=777&DCNTx=27.25&DCNT4=9.75&DCNT3=$14.75&DCNT2=8.50&DCNT1=9.50&QTY5=1&DISCOUNT=5.00&QTY4=1.0&QTY3=-1&AMT5=109.00&QTY2=1&AMT4=39.00&QTY1=2&AMT3=59.00&ITEM5=444234&AMT2=34.00&ITEM4=44284.3_BLA_L_1&AMT1=19.00&CURRENCY=USD&ITEM3=444685&ITEM2=404#511&ITEM1=384275&COUPON=MUSHROOM_PIXXA</textarea>
 
 
 <br><br><hr>
-<i>This will only show the params it cares about, not everything in the pixel.<br></i>
-<i>Right now you need to have un-encoded ampersands.<br></i>
+<p>Here is a list of what the parser will currently check for:</p>
+<ul>
+    <li>QTY: Non-numeric values</li>
+    <li>ITEM: Any character besides dashes, underscores, and alphanumeric</li>
+    <li>AMOUNT and ITEM in the same string</li>
+    <li>A literal DCNTx etc. However, some variations currently break the parser.</li>
+</ul>
+<i>Some kinds of tags may break the parser, it requires properly formed key/value pairs and other basic information to be correct in order to parse the query string<br></i>
+<i>Characters displayed in warnings will be separate with commas.<br></i>
+<i>This will only show the params it cares about, not everything in the pixel. You should verify the tag manually as well.<br></i>
+<i>Currently you must have un-encoded ampersands.<br></i>
 <br>
+
+
+
 
 
 <script>
@@ -91,8 +101,13 @@ $("#a_submit").click(
 	var querystring = $("#a_input").val();
 	//console.log(querystring);
 						
-	var subTotal = 0;
-	
+	var subTotal = "0";
+        
+        //if you set this to TRUE, later it will warn you about the subtotal
+        var badSubtotal = false;
+	//TODO - finish implemetning this in all valid places
+        
+        
         var warnings = "<div class='warnings'>";
 		
 			
@@ -105,10 +120,15 @@ $("#a_submit").click(
         var pixelDict = new Array();
         for(i in pixelArray){
             
+            //TODO valdiate that the pixel is correct before chopping it like this
+            //and throw warnings, maybe stop executing at that point
+            //maybe branch the code before you start working on that, 
+            //since may require major changes to the structure of the code
+            
             //look for AMTx etc
             usingX = pixelArray[i].match(/(dcntx)|(amtx)|(itemx)|(qtyx)/gi);
             if(usingX != null){
-                    warnings += '<br/>Warning - found bad parameter: ' + usingX;
+                    warnings += '<br/>Warning: found bad parameter: ' + usingX;
                 }
             
             var t = pixelArray[i].split("=");
@@ -118,8 +138,16 @@ $("#a_submit").click(
         }
 			
             var itemList = "";
+            var qtyBadChars = "";
+            var itemBadChars = "";
+            
+            
+            //store if we think tag is simple or item, etc
+            var tagType = "";
             
             if(pixelDict["AMOUNT"] != undefined){
+                
+                tagType = "simple";
 		itemList = itemList + '<span class="params">AMOUNT</span>: ' + pixelDict["AMOUNT"]+'<br/>';
 		subTotal = subTotal + parseFloat(pixelDict["AMOUNT"]);
             }
@@ -146,25 +174,45 @@ $("#a_submit").click(
 			
             itemList = itemList + '<hr/>';
 			
-	
 			
             for(var n = 1; n < 100 + 1; n++){
 				
             if(pixelDict["ITEM"+n] != undefined){
+                
+                //TODO add checks for all the other item-style params too
+                if(tagType == "simple"){
+                    warnings += '<br/>Warning: tag has both AMOUNT and ITEM params';
+                    warnings += '<br/>The subtotal will not be calculated for this reason.';
+                    badSubtotal = true;
+                }
+                
+                //TODO - check ITEM+n, AMT+n, and QTY+n for the following:
+                //does another one exist like two AMT1? that would need to be further up in the flow
+                //does the value previous exist, i.e. for ATM2, does AMT1 exist?
+                //for AMT1, AMT0 should NOT exist :>
+       
+                
+                //match anything that is not dash, underscore, alphanumeric
+                itemBadChars = pixelDict["ITEM"+n].match(/[^0-9A-Z\-_]/gi);
+
+                if(itemBadChars != null){
+                    warnings += '<br/>Warning: Illegal characters found in ITEM'+n+': ' + itemBadChars;
+                }
+                
+                
                 itemList = itemList + '<br/>'+
                  '<span class="params_head">SKU GROUP NUMBER: '+n +'</span><br/>'+
                  '<span class="params">ITEM'+'</span>: ' + pixelDict["ITEM"+n]+'<br/>'+
                  '<span class="params">AMT'+'</span>: ' + pixelDict["AMT"+n] +'<br/>'+
                  '<span class="params">QTY'+'</span>: ' + pixelDict["QTY"+n] +'<br/>';
 
-
-                //TODO error checking - do this as a function if they are the same for multiple params? 
-                
+              
                 //match anything that is not a number
                 qtyBadChars = pixelDict["QTY"+n].match(/[^0-9]/g);
 
                 if(qtyBadChars != null){
-                    warnings += '<br/>Warning: Illegal characters found in QTY: ' + qtyBadChars;
+                    warnings += '<br/>Warning: Illegal characters found in QTY'+n+': ' + qtyBadChars;
+                    badSubtotal = true;
                 }
 	
 					
@@ -179,11 +227,16 @@ $("#a_submit").click(
             }
 			
 			
+            //show a warning if the subtoal is suspect
+            if(badSubtotal == true){
+                                
+                warnings += '<br>Warning: Fields used in the order subtotal generated errors. The subtotal may be incorrect.';
+            }
+                        
 				
                 $("#output_area").append('<span class="header">Standalone Pixel Parser</span><hr/>'
-                    +'<br/><br/><i>Note: Only standard tag parameters are shown - verify the tag manually too.</i>'
                     + warnings + '<br/><br/></div>'
-                    + 'Order subtotal: ' + subTotal + '<br/><br/>'
+                    +'Order subtotal: ' + subTotal + '<br/><br/>'
                     +'<span class="params">CID</span>: ' + pixelDict["CID"] + '<br/>' 
                     +'<span class="params">TYPE</span>: ' + pixelDict["TYPE"] + '<br/>'
                     +'<span class="params">OID</span>: '+ pixelDict["OID"] + '<br/>'
