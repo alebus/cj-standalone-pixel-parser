@@ -4,6 +4,22 @@
     Author     : alebus
 */
 
+
+body {
+        //background-image: url("background-cj.gif");
+	//background-repeat: no-repeat;
+	//background-attachment: fixed;
+	//background-position: center; 
+	font-family: "Verdana", "Tahoma";
+        padding: 3em;
+}
+
+
+td {
+    padding: 5px;
+}
+
+
 .pixel:hover{
 	background-color:#ccddee;
 }
@@ -23,7 +39,10 @@ font-weight:bold;
 
 
 .warnings{
-color:red;
+color: red;
+background-color: #bbbbbb;
+border: solid grey;
+padding: 5px;
 }
 
 .sample_pixel{
