@@ -40,7 +40,14 @@ font-weight:bold;
 
 .warnings{
 color: red;
-background-color: #bbbbbb;
+background-color: #fdbebe;
+border: solid grey;
+padding: 5px;
+}
+
+.infoblue{
+color: black;
+background-color: #d7e4ff;
 border: solid grey;
 padding: 5px;
 }

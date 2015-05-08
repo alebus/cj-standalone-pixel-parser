@@ -22,12 +22,11 @@ and open the template in the editor.
 <body>
         
         
-<img height="125" src="pixel_mario.png">
+<img height="125" id="mario" src="pixel_mario.png">
 <img src="pixel_parser.png">
 <br><br>
 
-<p>-- Version 1.4 -- </p>
-<br><br>
+
 
 <input action=# method="get" type="text" size="150" id="a_input"><br>
 <input type="submit" value="Parse the pixel" id="a_submit">
@@ -48,32 +47,37 @@ and open the template in the editor.
 </tr>
 </table>
 
-<br><br><hr>
-
-NEW FEATURES
+<br><br>
+<div class="infoblue">
+<strong>NEW FEATURES</strong>
 <ul>
 
     <li>Now supports HTML-encoded ampersands</li>
+    <li><strong>Error-checking is being added</strong></li>    
+    <ul>
+        <li><strong>Currently implmented:</strong></li>
+            <li>QTY: Non-numeric values</li>
+            <li>ITEM: Any character besides dashes, underscores, and alphanumeric</li>
+            <li>AMOUNT and ITEM in the same tag (simple and advanced combined)</li>
+            <li>A literal DCNTx etc. However, some variations currently break the parser.</li>
+        </ul>
+    
     
 </ul>
 
-<strong>Error-checking is being added</strong>
-<p>Here is a list of what the parser will currently check for:</p>
-<ul>
-    <li>QTY: Non-numeric values</li>
-    <li>ITEM: Any character besides dashes, underscores, and alphanumeric</li>
-    <li>AMOUNT and ITEM in the same tag (simple and advanced combined)</li>
-    <li>A literal DCNTx etc. However, some variations currently break the parser.</li>
-</ul>
+
 <strong>Notes and warnings:</strong>
 <ul>
 <li>Some kinds of tags may break the parser - it requires properly formed key/value pairs and other basic information to be correct in order to parse the query string</li>
 <li>Characters displayed in warnings will be separated with commas.</li>
-<li>Currently only "known" parameters are listed. You should always verify the tag manually as well.</li>
+<li>Currently only "known" parameters are listed.</li>
 <li>You should always verify the tag manually as well.</li>
+<li>Please let Airn know if you find any bugs.<img src="bug.png"></li>
 </ul>
+</div>
 
-
+<br><br>
+<p>-- Version 1.4 -- </p>
 
 
 
@@ -97,7 +101,7 @@ $("#a_submit").click(
         //clear the div before adding output
         $("#output_area").html("");
 			
-        
+           
 	var querystring = $("#a_input").val();
         
         
@@ -250,13 +254,25 @@ $("#a_submit").click(
 			
 			
             //show a warning if the subtoal is suspect
-            if(badSubtotal == true){
+            if(badSubtotal === true){
                                 
                 warnings += '<br>Warning: Fields used in the order subtotal generated errors. The subtotal may be incorrect.';
             }
+            
+            //close the warnings div
+            warnings += "<br/><br/></div><br/><br/>";
+            
+            //TODO update this if you change the warnings section
+            //hide the warnings area if nothing was added
+            if(warnings === "<div class='warnings'><br/><br/></div><br/><br/>"){
+                
+                warnings = "";
+            }
+            
+            
                         
                 //TODO check DIVs etc (i.e. final HTML)
-                $("#output_area").append('<br>' + warnings + '<br/><br/></div>'
+                $("#output_area").append('<br>' + warnings
                     +'<strong>SUBTOTAL: ' + subTotal + '</strong><br/><br/>'
                     +'<span class="params">CID</span>: ' + pixelDict["CID"] + '<br/>' 
                     +'<span class="params">TYPE</span>: ' + pixelDict["TYPE"] + '<br/>'

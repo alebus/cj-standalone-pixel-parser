@@ -10,6 +10,7 @@
 *just SFTP whatever you want into there, ensure you have the correct dir
 *HAVE PEOPLE USE THAT before you push that version live
 *
+***PUT NEW FEATURES IN WEEKLY
 *
 *Version: 1.2: major updates to HTML and output format, plus a move to shell1 from allied
 *Version: 1.3: move into netbeans, move to github, etc etc
