@@ -41,7 +41,10 @@
 **Per jen: amtx or other wrong things
 *DONE *per jen: chars other than dashes/underscores, a-z and 0-9 in SKUs
 *
-*TODO soon - check for anything besides decimal and numbers in AMT / AMOUNT 
+*TODO verify that subtotal is a number and say something if it is not
+*
+*TODO do the same checks for DCNT and DISCOUNT that you are doing for AMT/AMOUNT
+*should probably do it as a function
 *
 */
 

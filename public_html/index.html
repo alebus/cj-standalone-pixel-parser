@@ -42,7 +42,7 @@ and open the template in the editor.
     </td>
     <td>&nbsp;</td>
     <td>
-        <textarea class="broken_pixel" rows="4" cols="50">OID=123ABC&CID=151515&TYPE=353241&containerTagId=777&DCNTx=27.25&DCNT4=9.75&DCNT3=$14.75&DCNT2=8.50&DCNT1=9.50&QTY5=1&DISCOUNT=5.00&QTY4=1.0&QTY3=-1&AMT5=109.00&QTY2=1&AMT4=39.00&QTY1=2&AMT3=59.00&ITEM5=444234&AMT2=34.00&ITEM4=44284.3_BLA_L_1&AMT1=19.00&CURRENCY=USD&ITEM3=444685&ITEM2=404#511&ITEM1=384275&COUPON=MUSHROOM_PIXXA</textarea>
+        <textarea class="broken_pixel" rows="4" cols="50">OID=123ABC&CID=151515&TYPE=353241&containerTagId=777&DCNTx=27.25&DCNT4=-9.75&DCNT3=$14.75&DCNT2=8.50&DCNT1=9..50&QTY5=1&DISCOUNT=-5.00&QTY4=1.0&QTY3=-1&AMT5=109..00&QTY2=1&AMT4=39,00&QTY1=2&AMT3=$59.00&ITEM5=444234&AMT2=34.00&ITEM4=44284.3_BLA_L_1&AMT1=19.00&CURRENCY=USD&ITEM3=444685&ITEM2=404#511&ITEM1=384275&COUPON=MUSHROOM_PIXXA</textarea>
     </td>
 </tr>
 </table>
@@ -59,6 +59,9 @@ and open the template in the editor.
             <li>QTY: Non-numeric values</li>
             <li>ITEM: Any character besides dashes, underscores, and alphanumeric</li>
             <li>AMOUNT and ITEM in the same tag (simple and advanced combined)</li>
+            <li>Checks AMT and AMOUNT for anything besides 0-9 with decimal.</li>
+            <li>Also runs separate "is numeric" check on AMT and AMOUNT in contains "1..0 " or similar.</li>
+            <li>Warn if COUPON is missing</li>
             <li>A literal DCNTx etc. However, some variations currently break the parser.</li>
         </ul>
     
@@ -158,12 +161,26 @@ $("#a_submit").click(
             var itemList = "";
             var qtyBadChars = "";
             var itemBadChars = "";
+            var amountBadChars = "";
+            var amtBadChars = "";
             
             
             //store if we think tag is simple or item, etc
             var tagType = "";
             
             if(pixelDict["AMOUNT"] != undefined){
+                
+                amountBadChars = pixelDict["AMOUNT"].match(/[^0-9\.]/g);
+                if(amountBadChars != null){
+                    warnings += '<br/>Warning: Illegal characters found in AMOUNT: ' + amountBadChars;
+                    badSubtotal = true;
+                }
+                
+                if( ! $.isNumeric(pixelDict["AMOUNT"])) {
+                    
+                    warnings += '<br/>Warning: AMOUNT is not a numeric value: ' + pixelDict["AMOUNT"];
+                    badSubtotal = true;
+                }
                 
                 tagType = "simple";
 		itemList = itemList + '<span class="params">AMOUNT</span>: ' + pixelDict["AMOUNT"]+'<br/>';
@@ -175,7 +192,12 @@ $("#a_submit").click(
 		itemList = itemList + '<span class="params">CONTAINERTAGID</span>: ' + pixelDict["CONTAINERTAGID"]+'<br/>';
             }
 				
-			
+            //show warning if coupon is missing
+            if(pixelDict["COUPON"] == undefined){
+                  warnings += '<br/>Warning: COUPON is missing.';
+            };
+            
+            
             if(pixelDict["COUPON"] != undefined){
 		itemList = itemList + '<span class="params">COUPON</span>: ' + pixelDict["COUPON"]+'<br/>';
             }
@@ -198,6 +220,7 @@ $("#a_submit").click(
             if(pixelDict["ITEM"+n] != undefined){
                 
                 //TODO add checks for all the other item-style params too
+                //TODO BUG this is output too many times
                 if(tagType == "simple"){
                     warnings += '<br/>Warning: tag has both AMOUNT and ITEM params';
                     warnings += '<br/>The subtotal will not be calculated for this reason.';
@@ -236,6 +259,18 @@ $("#a_submit").click(
 					
 		subTotal = subTotal + parseFloat(pixelDict["AMT"+n]) * parseFloat(pixelDict["QTY"+n]);
 		
+                amtBadChars = pixelDict["AMT"+n].match(/[^0-9\.]/g);
+                if(amtBadChars != null){
+                    warnings += '<br/>Warning: Illegal characters found in AMT'+n+': ' + amtBadChars;
+                    badSubtotal = true;
+                }
+                
+                if( ! $.isNumeric(pixelDict["AMT"+n])) {
+                    
+                    warnings += '<br/>Warning: AMT'+n+' is not a numeric value: ' + pixelDict["AMT"+n];
+                    badSubtotal = true;
+                }
+                
                 
                 //TODO DCNT should warn about param and subtotal if contains anything but decimal and numbers
                 //AMT and DISCOUNT etc should also do this 
