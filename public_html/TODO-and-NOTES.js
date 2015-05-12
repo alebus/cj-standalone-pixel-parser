@@ -9,6 +9,7 @@
 *I created a separate dir on Shell 1
 *just SFTP whatever you want into there, ensure you have the correct dir
 *HAVE PEOPLE USE THAT before you push that version live
+*change the version number when you push and make a note in here
 *
 ***PUT NEW FEATURES IN WEEKLY
 *
@@ -20,31 +21,21 @@
 *
 *TODO how best keep track of version numbers? or don't?
 *
+*
 *TODO do you need to escape input etc? esp if something located on external server, I don't want them doing XSS attacks etc
 *JS/jQuery book has some great info on that 
 *
 **TODO you could have it display every param that is NOT in a list of known params
 *
 *TODO see notes in Onenote
-*TODO is there a way to put comments in a separate private file etc? or just make a TODO file and don't push that to production
-*or branch it and remove all comments and push that one to the server
 *
-*TODO sometime closing the window redirects the browser
-*
-*TODO remove comments before push to production
-*
-*TODO - parse &amp; too
 *
 *TODO update to match kibana version as needed but remember that a lot of this works differently 
-*
-*TODO do these next: 
-**Per jen: amtx or other wrong things
-*DONE *per jen: chars other than dashes/underscores, a-z and 0-9 in SKUs
 *
 *TODO verify that subtotal is a number and say something if it is not
 *
 *TODO do the same checks for DCNT and DISCOUNT that you are doing for AMT/AMOUNT
-*should probably do it as a function
+*should probably do it as a function since it's basically the same code 4 times
 *
 */
 
