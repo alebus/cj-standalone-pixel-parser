@@ -22,14 +22,14 @@ and open the template in the editor.
 <body>
         
         
-<img height="125" id="mario" src="pixel_mario.png">
-<img src="pixel_parser.png">
+<img height="100" src="cj_logo.png">
+<img height="95" src="pixel_parser_airstream.png">
 <br><br>
 
 
 
-<input action=# method="get" type="text" size="150" id="a_input"><br>
-<input type="submit" value="Parse the pixel" id="a_submit">
+<input class="a_textbox" type="text" size="150" id="a_input"><br>
+<input class="a_button" type="submit" value="Parse the pixel" id="a_submit">
 <div id="output_area"></div>
 <br/><br/><br/>
 
@@ -111,7 +111,7 @@ $("#a_submit").click(
         //the regex can't have quotes around it
         querystring = querystring.replace(/&amp;/gi,'&');      
         	
-        var subTotal = "0";
+        var subTotal = 0;
         
         //if you set this to true, later will warn user about the subtotal
         var badSubtotal = false;

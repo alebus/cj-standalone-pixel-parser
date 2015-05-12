@@ -52,12 +52,35 @@ border: solid grey;
 padding: 5px;
 }
 
-.sample_pixel{
-background-color: #E6EBF0;
 
-  
+.a_textbox{
+color: black;
+background-color: #d6f4cf;
+border: solid grey;
+padding: 5px;
+font-family: "Verdana", "Tahoma";
+height: 2em;
+}
+
+.a_button{
+    
+color: black;
+font-family: "Verdana", "Tahoma";
+height: 2.5em;  
+margin-top: .5em;
+}
+
+
+.sample_pixel{
+background-color: #d6f4cf;
+ 
   }
 
+  .broken_pixel{
+      background-color: #ffd7d7
+      
+  }
+  
 .messagepop {
   background-color:#3366cc;
   border:1px solid #000000;
