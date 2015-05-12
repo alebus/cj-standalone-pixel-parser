@@ -55,7 +55,7 @@ and open the template in the editor.
     <li>Now supports HTML-encoded ampersands</li>
     <li><strong>Error-checking is being added</strong></li>    
     <ul>
-        <li><strong>Currently implemented:</strong></li>
+        <li>Currently implemented:</li>
             <li>QTY: Non-numeric values</li>
             <li>ITEM: Any character besides dashes, underscores, and alphanumeric</li>
             <li>AMOUNT and ITEM in the same tag (simple and advanced combined)</li>
@@ -71,7 +71,8 @@ and open the template in the editor.
 
 <strong>Notes and warnings:</strong>
 <ul>
-<li>Some kinds of tags may break the parser - it requires properly formed key/value pairs and other basic information to be correct in order to parse the query string</li>
+<li>Recommended browser: Chrome</li>
+<li>Some kinds of tags may break the parser - it requires properly formed key/value pairs and other basic information to be correct in order to parse the query string.</li>
 <li>Characters displayed in warnings will be separated with commas.</li>
 <li>Currently only "known" parameters are listed.</li>
 <li>You should always verify the tag manually as well.</li>
@@ -208,7 +209,7 @@ $("#a_submit").click(
             subTotal = subTotal - parseFloat(pixelDict["DISCOUNT"]);
             }
 			
-            itemList = itemList + '<hr/>';
+            itemList = itemList + '<img src="blue_line.png">';
 			
 			
             for(var n = 1; n < 100 + 1; n++){
@@ -307,7 +308,7 @@ $("#a_submit").click(
                     +'<span class="params">TYPE</span>: ' + pixelDict["TYPE"] + '<br/>'
                     +'<span class="params">OID</span>: '+ pixelDict["OID"] + '<br/>'
                     + itemList 
-                    +'</div></div><hr/>');
+                    +'</div></div><img src="blue_line.png">');
 
 
                 //only toggle the area if it's hidden already, otherwise it gets hidden 
