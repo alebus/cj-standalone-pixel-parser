@@ -52,8 +52,10 @@ and open the template in the editor.
 <strong>NEW FEATURES</strong>
 <ul>
 
-    <li>Now supports HTML-encoded ampersands</li>
-    <li><strong>Error-checking is being added</strong></li>    
+    <li><strong>Update 03-15-2016: Some internal and final values in this tool are now rounded to 3 decimal places. The pixel parser and CJ system may not calculate subtotals in the same way.</strong></li>   
+	<li><strong>Error-checking is being added</strong></li>    
+	<li>Now supports HTML-encoded ampersands</li>
+	
     <ul>
         <li>Currently implemented:</li>
             <li>QTY: Non-numeric values</li>
@@ -81,7 +83,7 @@ and open the template in the editor.
 </div>
 
 <br><br>
-<p>-- Version 1.4 -- </p>
+<p>-- Version 1.5.1 -- </p>
 
 
 
@@ -113,6 +115,7 @@ $("#a_submit").click(
         querystring = querystring.replace(/&amp;/gi,'&');      
         	
         var subTotal = 0;
+		
         
         //if you set this to true, later will warn user about the subtotal
         var badSubtotal = false;
@@ -181,7 +184,7 @@ $("#a_submit").click(
                 
                 tagType = "simple";
 		itemList = itemList + '<span class="params">AMOUNT</span>: ' + pixelDict["AMOUNT"]+'<br/>';
-		subTotal = subTotal + parseFloat(pixelDict["AMOUNT"]);
+		subTotal = subTotal + parseFloat(pixelDict["AMOUNT"]).toPrecision(3);
             }
 				
 				
@@ -206,7 +209,7 @@ $("#a_submit").click(
 				
             if(pixelDict["DISCOUNT"] != undefined){
             itemList = itemList + '<span class="params">DISCOUNT</span>: ' + pixelDict["DISCOUNT"]+'<br/>';
-            subTotal = subTotal - parseFloat(pixelDict["DISCOUNT"]);
+            subTotal = subTotal - parseFloat(pixelDict["DISCOUNT"]).toPrecision(3);
             }
 			
             itemList = itemList + '<img src="blue_line.png">';
@@ -254,7 +257,7 @@ $("#a_submit").click(
                 }
 	
 					
-		subTotal = subTotal + parseFloat(pixelDict["AMT"+n]) * parseFloat(pixelDict["QTY"+n]);
+		subTotal = subTotal + parseFloat(pixelDict["AMT"+n]).toPrecision(3) * parseFloat(pixelDict["QTY"+n]).toPrecision(3);
 		
                 amtBadChars = pixelDict["AMT"+n].match(/[^0-9\.]/g);
                 if(amtBadChars != null){
@@ -271,7 +274,7 @@ $("#a_submit").click(
                 
          	if(pixelDict["DCNT"+n] != undefined){
                     itemList = itemList + '<span class="params">DCNT</span>: ' + pixelDict["DCNT"+n]+'<br/>';
-                    subTotal = subTotal - parseFloat(pixelDict["DCNT"+n])
+                    subTotal = subTotal - parseFloat(pixelDict["DCNT"+n].toPrecision(3))
 		}
             }   else { 	
                 
@@ -300,7 +303,9 @@ $("#a_submit").click(
             }
             
             
-                        
+				subTotal = subTotal.toPrecision(3);
+
+				
                 //TODO check final HTML output for validity, there are a lot of randon DIVs etc
                 $("#output_area").append('<br>' + warnings
                     +'<strong>SUBTOTAL: ' + subTotal + '</strong><br/><br/>'
