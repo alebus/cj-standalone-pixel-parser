@@ -83,7 +83,7 @@ and open the template in the editor.
 </div>
 
 <br><br>
-<p>-- Version 1.5.1 -- </p>
+<p>-- Version 1.6 -- </p>
 
 
 
@@ -184,7 +184,7 @@ $("#a_submit").click(
                 
                 tagType = "simple";
 		itemList = itemList + '<span class="params">AMOUNT</span>: ' + pixelDict["AMOUNT"]+'<br/>';
-		subTotal = subTotal + parseFloat(pixelDict["AMOUNT"]).toPrecision(3);
+		subTotal = subTotal + Math.round(parseFloat(pixelDict["AMOUNT"])* 100) / 100;
             }
 				
 				
@@ -209,7 +209,9 @@ $("#a_submit").click(
 				
             if(pixelDict["DISCOUNT"] != undefined){
             itemList = itemList + '<span class="params">DISCOUNT</span>: ' + pixelDict["DISCOUNT"]+'<br/>';
-            subTotal = subTotal - parseFloat(pixelDict["DISCOUNT"]).toPrecision(3);
+            
+                      
+            subTotal = subTotal - Math.round(parseFloat(pixelDict["DISCOUNT"]) * 100) / 100;
             }
 			
             itemList = itemList + '<img src="blue_line.png">';
@@ -256,8 +258,10 @@ $("#a_submit").click(
                     badSubtotal = true;
                 }
 	
-					
-		subTotal = subTotal + parseFloat(pixelDict["AMT"+n]).toPrecision(3) * parseFloat(pixelDict["QTY"+n]).toPrecision(3);
+                tempamt = Math.round( parseFloat(pixelDict["AMT"+n]) * 100) / 100;
+                tempqty = Math.round( parseFloat(pixelDict["QTY"+n]) * 100) / 100;
+                
+		subTotal = subTotal + (tempamt * tempqty) ;
 		
                 amtBadChars = pixelDict["AMT"+n].match(/[^0-9\.]/g);
                 if(amtBadChars != null){
@@ -274,7 +278,9 @@ $("#a_submit").click(
                 
          	if(pixelDict["DCNT"+n] != undefined){
                     itemList = itemList + '<span class="params">DCNT</span>: ' + pixelDict["DCNT"+n]+'<br/>';
-                    subTotal = subTotal - parseFloat(pixelDict["DCNT"+n].toPrecision(3))
+                    
+                                      
+                    subTotal = subTotal - Math.round( parseFloat(pixelDict["DCNT"+n]) * 100) / 100;
 		}
             }   else { 	
                 
@@ -303,7 +309,7 @@ $("#a_submit").click(
             }
             
             
-				subTotal = subTotal.toPrecision(3);
+				subTotal = Math.round(subTotal * 100) / 100;
 
 				
                 //TODO check final HTML output for validity, there are a lot of randon DIVs etc

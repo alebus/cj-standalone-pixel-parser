@@ -11,7 +11,12 @@
 *also supports encoded ampersands now, changed for loop structure, etc etc
 *version 1.5.1: added some toPrecision(3) to fix issues caused by parsefloat
                 updated text on page with disclaimer about rounding and info
+*version 1.6: toPrecision was not a good solution, I changed it to Math.round and did some testing. Everything seems OK so far. 
 *
+*03-25-2016
+*-my toPrecision thing was not a good solution, I changed it to Math.round and did some testing. Everything seems OK so far. 
+*-updated version to 1.6
+* 
 *
 *
 *03-16-2016
