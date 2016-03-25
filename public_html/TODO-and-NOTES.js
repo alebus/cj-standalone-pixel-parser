@@ -14,8 +14,12 @@
 *version 1.6: toPrecision was not a good solution, I changed it to Math.round and did some testing. Everything seems OK so far. 
 *
 *03-25-2016
-*-my toPrecision thing was not a good solution, I changed it to Math.round and did some testing. Everything seems OK so far. 
-*-updated version to 1.6
+**-updated version to 1.6
+**-my toPrecision thing was not a good solution, I changed it to Math.round and did some testing. Everything seems OK so far. 
+**toFixed is also no good because it converts to a string and so the pixel below was failing when it tried to round TWICE and the value was now a srting...
+**AMOUNT=0&OID=56f2e33d7f5595316ab83ba7_free_1458758461000_0&containerTagId=12730&CID=1536367&CURRENCY=USD&TYPE=383212
+**Uncaught TypeError: subTotal.toPrecision is not a function
+
 * 
 *
 *
