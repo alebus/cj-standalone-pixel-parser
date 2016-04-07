@@ -2,6 +2,13 @@
 *
 *
 *
+*
+*
+*NOTE: make a copy of index.html without ANY comments or to-do, and then upload that one to production
+*-on 04-07-2016, I just grabbed the one in production and removed all comments since craig was showing it to his automation team
+*-also maybe later it would be nice to move the main JS to sep file and minify it / obfuscate it
+*
+*
 *I moved notes and GENERAL TODO into here on 05-07-2015
 *
 **Version: 1.2: major updates to HTML and output format, plus a move to shell1 from allied
