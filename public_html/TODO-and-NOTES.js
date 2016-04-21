@@ -12,6 +12,8 @@
 *I moved notes and GENERAL TODO into here on 05-07-2015
 *
 *04-21-2016 I added Google analytics code to the site's index.html
+*           instead of copying the whole new file to production I just pasted in the analytics code to the live page directly 
+*           since I had removed all the comments (see prev notes)
 *
 **Version: 1.2: major updates to HTML and output format, plus a move to shell1 from allied
 *Version: 1.3: move into netbeans, move to github, etc etc
