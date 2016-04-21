@@ -11,6 +11,8 @@
 *
 *I moved notes and GENERAL TODO into here on 05-07-2015
 *
+*04-21-2016 I added Google analytics code to the site's index.html
+*
 **Version: 1.2: major updates to HTML and output format, plus a move to shell1 from allied
 *Version: 1.3: move into netbeans, move to github, etc etc
 *05-05-2015 I removed popup which included changing the CSS
@@ -76,6 +78,8 @@ SUBTOTAL: 50.400000000000006
 *
 
 
+*
+*TODO need to deal with things like "DISCOUNT=", it causes NaN in the subtotal
 *
 *TODO how best keep track of version numbers? or don't?
 *
